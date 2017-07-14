@@ -18,15 +18,20 @@ package net.ymate.module.websocket;
 import net.ymate.module.websocket.annotation.WSServer;
 import net.ymate.module.websocket.handle.WSServerHandler;
 import net.ymate.module.websocket.impl.DefaultModuleCfg;
-import net.ymate.module.websocket.support.WSServerEndpointConfigurator;
 import net.ymate.platform.core.Version;
 import net.ymate.platform.core.YMP;
 import net.ymate.platform.core.module.IModule;
 import net.ymate.platform.core.module.annotation.Module;
 import net.ymate.platform.core.util.ClassUtils;
+import net.ymate.platform.core.util.RuntimeUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import javax.servlet.ServletContext;
+import javax.websocket.DeploymentException;
+import javax.websocket.Endpoint;
+import javax.websocket.server.ServerContainer;
+import javax.websocket.server.ServerEndpointConfig;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -50,7 +55,9 @@ public class WebSocket implements IModule, IWebSocket {
 
     private boolean __inited;
 
-    private List<WSServerEndpointConfigurator> __serverEndpointConfigurators;
+    private List<ServerEndpointConfig> __serverEndpointConfigurators;
+
+    private ServerContainer __serverContainer;
 
     public static IWebSocket get() {
         if (__instance == null) {
@@ -64,7 +71,7 @@ public class WebSocket implements IModule, IWebSocket {
     }
 
     public WebSocket() {
-        __serverEndpointConfigurators = new ArrayList<WSServerEndpointConfigurator>();
+        __serverEndpointConfigurators = new ArrayList<ServerEndpointConfig>();
     }
 
     public String getName() {
@@ -96,7 +103,8 @@ public class WebSocket implements IModule, IWebSocket {
         }
         WSListener _target = ClassUtils.impl(targetClass, WSListener.class);
         if (_target != null) {
-            WSServerEndpointConfigurator _configurator = new WSServerEndpointConfigurator(_anno.value(), _target);
+            ServerEndpointConfig _configurator = _anno.configurator().getConstructor(String.class, Endpoint.class).newInstance(_anno.value(), _target);
+            //
             _configurator.getEncoders().addAll(Arrays.asList(_anno.encoders()));
             _configurator.getDecoders().addAll(Arrays.asList(_anno.decoders()));
             _configurator.getSubprotocols().addAll(Arrays.asList(_anno.subprotocols()));
@@ -108,13 +116,43 @@ public class WebSocket implements IModule, IWebSocket {
     public void registerClient(Class<? extends WSListener> targetClass) throws Exception {
     }
 
-    public List<WSServerEndpointConfigurator> getServerEndpointConfigurators() {
-        return __serverEndpointConfigurators;
+    public void initWSServers(ServletContext servletContext) {
+        if (servletContext != null) {
+            __serverContainer = (ServerContainer) servletContext.getAttribute(ServerContainer.class.getName());
+            if (__serverContainer != null) {
+                if (__moduleCfg.getAsyncSendTimeout() > 0) {
+                    __serverContainer.setAsyncSendTimeout(__moduleCfg.getAsyncSendTimeout());
+                }
+                if (__moduleCfg.getDefaultMaxSessionIdleTimeout() > 0) {
+                    __serverContainer.setDefaultMaxSessionIdleTimeout(__moduleCfg.getDefaultMaxSessionIdleTimeout());
+                }
+                if (__moduleCfg.getDefaultMaxTextMessageBufferSize() > 0) {
+                    __serverContainer.setDefaultMaxTextMessageBufferSize(__moduleCfg.getDefaultMaxTextMessageBufferSize());
+                }
+                if (__moduleCfg.getDefaultMaxBinaryMessageBufferSize() > 0) {
+                    __serverContainer.setDefaultMaxBinaryMessageBufferSize(__moduleCfg.getDefaultMaxBinaryMessageBufferSize());
+                }
+                //
+                try {
+                    for (ServerEndpointConfig _item : __serverEndpointConfigurators) {
+                        __serverContainer.addEndpoint(_item);
+                    }
+                } catch (DeploymentException e) {
+                    _LOG.error("", RuntimeUtils.unwrapThrow(e));
+                }
+            } else {
+                _LOG.warn("Attribute 'javax.websocket.server.ServerContainer' not found in ServletContext.");
+            }
+        } else {
+            _LOG.warn("A ServletContext is required to access the javax.websocket.server.ServerContainer instance.");
+        }
     }
 
     public void destroy() throws Exception {
         if (__inited) {
             __inited = false;
+            //
+            __serverContainer = null;
             //
             __moduleCfg = null;
             __owner = null;

@@ -15,6 +15,8 @@
  */
 package net.ymate.module.websocket.annotation;
 
+import net.ymate.module.websocket.support.WSServerEndpointConfigurator;
+
 import javax.websocket.Decoder;
 import javax.websocket.Encoder;
 import java.lang.annotation.*;
@@ -35,4 +37,6 @@ public @interface WSServer {
     Class<? extends Decoder>[] decoders() default {};
 
     Class<? extends Encoder>[] encoders() default {};
+
+    Class<? extends WSServerEndpointConfigurator> configurator() default WSServerEndpointConfigurator.class;
 }

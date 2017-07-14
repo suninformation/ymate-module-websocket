@@ -15,10 +15,9 @@
  */
 package net.ymate.module.websocket;
 
-import net.ymate.module.websocket.support.WSServerEndpointConfigurator;
 import net.ymate.platform.core.YMP;
 
-import java.util.List;
+import javax.servlet.ServletContext;
 
 /**
  * @author 刘镇 (suninformation@163.com) on 2017/07/12 上午 11:37
@@ -60,7 +59,9 @@ public interface IWebSocket {
     void registerClient(Class<? extends WSListener> targetClass) throws Exception;
 
     /**
-     * @return 返回服务端点配置集合
+     * 初始化服务端点
+     *
+     * @param servletContext Web服务容器对象
      */
-    List<WSServerEndpointConfigurator> getServerEndpointConfigurators();
+    void initWSServers(ServletContext servletContext);
 }
