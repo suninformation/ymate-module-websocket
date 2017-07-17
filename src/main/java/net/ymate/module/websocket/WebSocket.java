@@ -18,20 +18,19 @@ package net.ymate.module.websocket;
 import net.ymate.module.websocket.annotation.WSServer;
 import net.ymate.module.websocket.handle.WSServerHandler;
 import net.ymate.module.websocket.impl.DefaultModuleCfg;
+import net.ymate.module.websocket.support.WSServerEndpointConfigurator;
 import net.ymate.platform.core.Version;
 import net.ymate.platform.core.YMP;
+import net.ymate.platform.core.beans.BeanMeta;
 import net.ymate.platform.core.module.IModule;
 import net.ymate.platform.core.module.annotation.Module;
-import net.ymate.platform.core.util.ClassUtils;
 import net.ymate.platform.core.util.RuntimeUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import javax.servlet.ServletContext;
-import javax.websocket.DeploymentException;
 import javax.websocket.Endpoint;
 import javax.websocket.server.ServerContainer;
-import javax.websocket.server.ServerEndpointConfig;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -55,7 +54,7 @@ public class WebSocket implements IModule, IWebSocket {
 
     private boolean __inited;
 
-    private List<ServerEndpointConfig> __serverEndpointConfigurators;
+    private List<Class<? extends WSListener>> __wsListeners;
 
     private ServerContainer __serverContainer;
 
@@ -71,7 +70,7 @@ public class WebSocket implements IModule, IWebSocket {
     }
 
     public WebSocket() {
-        __serverEndpointConfigurators = new ArrayList<ServerEndpointConfig>();
+        __wsListeners = new ArrayList<Class<? extends WSListener>>();
     }
 
     public String getName() {
@@ -97,20 +96,11 @@ public class WebSocket implements IModule, IWebSocket {
     }
 
     public void registerServer(Class<? extends WSListener> targetClass) throws Exception {
-        WSServer _anno = targetClass.getAnnotation(WSServer.class);
-        if (_anno == null) {
+        if (targetClass.getAnnotation(WSServer.class) == null) {
             throw new IllegalArgumentException("No WSServer annotation present on class");
         }
-        WSListener _target = ClassUtils.impl(targetClass, WSListener.class);
-        if (_target != null) {
-            ServerEndpointConfig _configurator = _anno.configurator().getConstructor(String.class, Endpoint.class).newInstance(_anno.value(), _target);
-            //
-            _configurator.getEncoders().addAll(Arrays.asList(_anno.encoders()));
-            _configurator.getDecoders().addAll(Arrays.asList(_anno.decoders()));
-            _configurator.getSubprotocols().addAll(Arrays.asList(_anno.subprotocols()));
-            //
-            __serverEndpointConfigurators.add(_configurator);
-        }
+        __owner.registerBean(BeanMeta.create(targetClass.newInstance(), targetClass));
+        __wsListeners.add(targetClass);
     }
 
     public void registerClient(Class<? extends WSListener> targetClass) throws Exception {
@@ -134,10 +124,28 @@ public class WebSocket implements IModule, IWebSocket {
                 }
                 //
                 try {
-                    for (ServerEndpointConfig _item : __serverEndpointConfigurators) {
-                        __serverContainer.addEndpoint(_item);
+                    for (Class<? extends WSListener> _item : __wsListeners) {
+                        WSListener _target = __owner.getBean(_item);
+                        if (_target != null) {
+                            WSServer _serverAnno = _item.getAnnotation(WSServer.class);
+                            //
+                            WSServerEndpointConfigurator _configurator = _serverAnno.configurator().getConstructor(String.class, Endpoint.class).newInstance(_serverAnno.value(), _target);
+                            //
+                            _configurator.setEncoders(Arrays.asList(_serverAnno.encoders()));
+                            _configurator.setDecoders(Arrays.asList(_serverAnno.decoders()));
+                            _configurator.setSubprotocols(Arrays.asList(_serverAnno.subprotocols()));
+                            //
+                            if (_target instanceof IWSExtensible) {
+                                _configurator.setExtensions(((IWSExtensible) _target).getExtensions());
+                            }
+                            if (_target instanceof IWSHandshakeModifier) {
+                                _configurator.setHandshakeModifier((IWSHandshakeModifier) _target);
+                            }
+                            //
+                            __serverContainer.addEndpoint(_configurator);
+                        }
                     }
-                } catch (DeploymentException e) {
+                } catch (Exception e) {
                     _LOG.error("", RuntimeUtils.unwrapThrow(e));
                 }
             } else {

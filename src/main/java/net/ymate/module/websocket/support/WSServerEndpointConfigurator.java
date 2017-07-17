@@ -15,6 +15,7 @@
  */
 package net.ymate.module.websocket.support;
 
+import net.ymate.module.websocket.IWSHandshakeModifier;
 import org.apache.commons.lang.NullArgumentException;
 import org.apache.commons.lang.StringUtils;
 
@@ -45,6 +46,8 @@ public class WSServerEndpointConfigurator extends ServerEndpointConfig.Configura
     private List<Extension> extensions = new ArrayList<Extension>();
 
     private final Map<String, Object> userProperties = new HashMap<String, Object>();
+
+    private IWSHandshakeModifier handshakeModifier;
 
     public WSServerEndpointConfigurator(String path, Endpoint endpoint) {
         if (StringUtils.isBlank(path)) {
@@ -122,6 +125,14 @@ public class WSServerEndpointConfigurator extends ServerEndpointConfig.Configura
         this.userProperties.putAll(userProperties);
     }
 
+    public IWSHandshakeModifier getHandshakeModifier() {
+        return handshakeModifier;
+    }
+
+    public void setHandshakeModifier(IWSHandshakeModifier handshakeModifier) {
+        this.handshakeModifier = handshakeModifier;
+    }
+
     @Override
     @SuppressWarnings("unchecked")
     public final <T> T getEndpointInstance(Class<T> clazz) throws InstantiationException {
@@ -130,7 +141,9 @@ public class WSServerEndpointConfigurator extends ServerEndpointConfig.Configura
 
     @Override
     public void modifyHandshake(ServerEndpointConfig sec, HandshakeRequest request, HandshakeResponse response) {
-        super.modifyHandshake(this, request, response);
+        if (handshakeModifier != null) {
+            handshakeModifier.modifyHandshake(sec, request, response);
+        }
     }
 
     @Override
