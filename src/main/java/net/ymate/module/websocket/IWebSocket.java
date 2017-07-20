@@ -48,7 +48,7 @@ public interface IWebSocket {
      * @param targetClass 服务端点监听接口类型
      * @throws Exception 可能产生的异常
      */
-    void registerServer(Class<? extends WSListener> targetClass) throws Exception;
+    void registerServer(Class<? extends WSServerListener> targetClass) throws Exception;
 
     /**
      * 注册客户端点监听器
@@ -56,12 +56,17 @@ public interface IWebSocket {
      * @param targetClass 客户端点监听接口类型
      * @throws Exception 可能产生的异常
      */
-    void registerClient(Class<? extends WSListener> targetClass) throws Exception;
+    void registerClient(Class<? extends WSClientListener> targetClass) throws Exception;
 
     /**
-     * 初始化服务端点
+     * 向容器注册并初始化服务端点
      *
      * @param servletContext Web服务容器对象
      */
-    void initWSServers(ServletContext servletContext);
+    void registerServerEndpoints(ServletContext servletContext);
+
+    /**
+     * 向容器注册并初始化客户端点
+     */
+    void registerClientEndpoints();
 }

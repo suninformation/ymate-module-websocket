@@ -25,5 +25,5 @@ import javax.websocket.server.ServerEndpointConfig;
  */
 public interface IWSHandshakeModifier {
 
-    void modifyHandshake(ServerEndpointConfig sec, HandshakeRequest request, HandshakeResponse response);
+    void modifyHandshake(ServerEndpointConfig config, HandshakeRequest request, HandshakeResponse response);
 }

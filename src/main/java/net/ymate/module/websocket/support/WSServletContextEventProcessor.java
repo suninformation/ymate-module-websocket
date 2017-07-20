@@ -44,7 +44,8 @@ public class WSServletContextEventProcessor implements IEventRegister, IEventLis
     public boolean handle(WebEvent context) {
         switch (context.getEventName()) {
             case SERVLET_CONTEXT_INITED:
-                WebSocket.get().initWSServers(((ServletContextEvent) context.getEventSource()).getServletContext());
+                WebSocket.get().registerServerEndpoints(((ServletContextEvent) context.getEventSource()).getServletContext());
+                WebSocket.get().registerClientEndpoints();
                 break;
         }
         return false;

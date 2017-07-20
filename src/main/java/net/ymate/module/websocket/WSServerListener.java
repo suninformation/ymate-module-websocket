@@ -21,5 +21,5 @@ import javax.websocket.Endpoint;
  * @author 刘镇 (suninformation@163.com) on 2017/7/13 下午1:20
  * @version 1.0
  */
-public abstract class WSListener extends Endpoint {
+public abstract class WSServerListener extends Endpoint {
 }

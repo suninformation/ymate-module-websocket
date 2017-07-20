@@ -16,25 +16,25 @@
 package net.ymate.module.websocket.handle;
 
 import net.ymate.module.websocket.IWebSocket;
-import net.ymate.module.websocket.WSServerListener;
+import net.ymate.module.websocket.WSClientListener;
 import net.ymate.platform.core.beans.IBeanHandler;
 
 /**
  * @author 刘镇 (suninformation@163.com) on 2017/7/12 下午5:43
  * @version 1.0
  */
-public class WSServerHandler implements IBeanHandler {
+public class WSClientHandler implements IBeanHandler {
 
     private IWebSocket __owner;
 
-    public WSServerHandler(IWebSocket owner) {
+    public WSClientHandler(IWebSocket owner) {
         __owner = owner;
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public Object handle(Class<?> targetClass) throws Exception {
-        __owner.registerServer((Class<? extends WSServerListener>) targetClass);
+        __owner.registerClient((Class<? extends WSClientListener>) targetClass);
         return null;
     }
 }
