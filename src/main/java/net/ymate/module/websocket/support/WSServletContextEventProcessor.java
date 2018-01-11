@@ -47,6 +47,8 @@ public class WSServletContextEventProcessor implements IEventRegister, IEventLis
                 WebSocket.get().registerServerEndpoints(((ServletContextEvent) context.getEventSource()).getServletContext());
                 WebSocket.get().registerClientEndpoints();
                 break;
+            default:
+                break;
         }
         return false;
     }

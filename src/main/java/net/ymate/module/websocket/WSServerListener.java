@@ -15,11 +15,28 @@
  */
 package net.ymate.module.websocket;
 
+import javax.websocket.CloseReason;
 import javax.websocket.Endpoint;
+import javax.websocket.EndpointConfig;
+import javax.websocket.Session;
 
 /**
  * @author 刘镇 (suninformation@163.com) on 2017/7/13 下午1:20
  * @version 1.0
  */
 public abstract class WSServerListener extends Endpoint {
+
+    @Override
+    public void onOpen(Session session, EndpointConfig config) {
+    }
+
+    @Override
+    public void onClose(Session session, CloseReason closeReason) {
+        super.onClose(session, closeReason);
+    }
+
+    @Override
+    public void onError(Session session, Throwable thr) {
+        super.onError(session, thr);
+    }
 }

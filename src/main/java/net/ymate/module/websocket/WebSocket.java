@@ -90,10 +90,12 @@ public class WebSocket implements IModule, IWebSocket {
         __managers = new ArrayList<WSClientConnectionManager>();
     }
 
+    @Override
     public String getName() {
         return IWebSocket.MODULE_NAME;
     }
 
+    @Override
     public void init(YMP owner) throws Exception {
         if (!__inited) {
             //
@@ -109,10 +111,12 @@ public class WebSocket implements IModule, IWebSocket {
         }
     }
 
+    @Override
     public boolean isInited() {
         return __inited;
     }
 
+    @Override
     public void registerServer(Class<? extends WSServerListener> targetClass) throws Exception {
         if (targetClass.getAnnotation(WSServer.class) == null) {
             throw new IllegalArgumentException("No WSServer annotation present on class");
@@ -121,6 +125,7 @@ public class WebSocket implements IModule, IWebSocket {
         __serverListeners.add(targetClass);
     }
 
+    @Override
     public void registerClient(Class<? extends WSClientListener> targetClass) throws Exception {
         if (targetClass.getAnnotation(WSClient.class) == null) {
             throw new IllegalArgumentException("No WSClient annotation present on class");
@@ -129,6 +134,7 @@ public class WebSocket implements IModule, IWebSocket {
         __clientListeners.add(targetClass);
     }
 
+    @Override
     public void registerServerEndpoints(ServletContext servletContext) {
         if (__serverContainer == null) {
             if (servletContext != null) {
@@ -181,6 +187,7 @@ public class WebSocket implements IModule, IWebSocket {
         }
     }
 
+    @Override
     public void registerClientEndpoints() {
         if (__webSocketContainer == null) {
             __webSocketContainer = ContainerProvider.getWebSocketContainer();
@@ -236,6 +243,7 @@ public class WebSocket implements IModule, IWebSocket {
         }
     }
 
+    @Override
     public void destroy() throws Exception {
         if (__inited) {
             __inited = false;
@@ -251,10 +259,12 @@ public class WebSocket implements IModule, IWebSocket {
         }
     }
 
+    @Override
     public YMP getOwner() {
         return __owner;
     }
 
+    @Override
     public IWebSocketModuleCfg getModuleCfg() {
         return __moduleCfg;
     }
