@@ -1,5 +1,5 @@
 /*
- * Copyright 2007-2017 the original author or authors.
+ * Copyright 2007-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,8 @@
  */
 package net.ymate.module.websocket.annotation;
 
+import net.ymate.module.websocket.IWSExtensible;
+import net.ymate.module.websocket.IWSHandshakeModifier;
 import net.ymate.module.websocket.support.WSServerEndpointConfigurator;
 
 import javax.websocket.Decoder;
@@ -23,7 +25,7 @@ import java.lang.annotation.*;
 
 /**
  * @author 刘镇 (suninformation@163.com) on 2017/7/12 上午11:45
- * @version 1.0
+ * @since 1.0
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
@@ -39,4 +41,8 @@ public @interface WSServer {
     Class<? extends Encoder>[] encoders() default {};
 
     Class<? extends WSServerEndpointConfigurator> configurator() default WSServerEndpointConfigurator.class;
+
+    Class<? extends IWSExtensible> extensible() default IWSExtensible.class;
+
+    Class<? extends IWSHandshakeModifier> handshakeModifier() default IWSHandshakeModifier.class;
 }

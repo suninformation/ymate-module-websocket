@@ -1,5 +1,5 @@
 /*
- * Copyright 2007-2017 the original author or authors.
+ * Copyright 2007-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,20 +21,20 @@ import net.ymate.platform.core.beans.IBeanHandler;
 
 /**
  * @author 刘镇 (suninformation@163.com) on 2017/7/12 下午5:43
- * @version 1.0
+ * @since 1.0
  */
 public class WSClientHandler implements IBeanHandler {
 
-    private IWebSocket __owner;
+    private final IWebSocket owner;
 
     public WSClientHandler(IWebSocket owner) {
-        __owner = owner;
+        this.owner = owner;
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public Object handle(Class<?> targetClass) throws Exception {
-        __owner.registerClient((Class<? extends WSClientListener>) targetClass);
+        owner.registerClient((Class<? extends WSClientListener>) targetClass);
         return null;
     }
 }

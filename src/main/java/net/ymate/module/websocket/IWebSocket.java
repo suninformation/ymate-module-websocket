@@ -1,5 +1,5 @@
 /*
- * Copyright 2007-2017 the original author or authors.
+ * Copyright 2007-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,32 +15,37 @@
  */
 package net.ymate.module.websocket;
 
-import net.ymate.platform.core.YMP;
+import net.ymate.module.websocket.support.WSClientConnectionManager;
+import net.ymate.module.websocket.support.WSServerEndpointConfigurator;
+import net.ymate.platform.core.IApplication;
+import net.ymate.platform.core.beans.annotation.Ignored;
+import net.ymate.platform.core.support.IDestroyable;
+import net.ymate.platform.core.support.IInitialization;
 
 import javax.servlet.ServletContext;
 
 /**
  * @author 刘镇 (suninformation@163.com) on 2017/07/12 上午 11:37
- * @version 1.0
+ * @since 1.0
  */
-public interface IWebSocket {
+@Ignored
+public interface IWebSocket extends IInitialization<IApplication>, IDestroyable {
 
-    String MODULE_NAME = "module.WebSocket";
-
-    /**
-     * @return 返回所属YMP框架管理器实例
-     */
-    YMP getOwner();
+    String MODULE_NAME = "module.websocket";
 
     /**
-     * @return 返回模块配置对象
+     * 获取所属应用容器
+     *
+     * @return 返回所属应用容器实例
      */
-    IWebSocketModuleCfg getModuleCfg();
+    IApplication getOwner();
 
     /**
-     * @return 返回模块是否已初始化
+     * 获取配置
+     *
+     * @return 返回配置对象
      */
-    boolean isInited();
+    IWebSocketConfig getConfig();
 
     /**
      * 注册服务端点监听器
@@ -51,12 +56,26 @@ public interface IWebSocket {
     void registerServer(Class<? extends WSServerListener> targetClass) throws Exception;
 
     /**
+     * 注册服务端点监听器
+     *
+     * @param serverEndpointConfigurator 服务端点配置
+     */
+    void registerServer(WSServerEndpointConfigurator serverEndpointConfigurator);
+
+    /**
      * 注册客户端点监听器
      *
      * @param targetClass 客户端点监听接口类型
      * @throws Exception 可能产生的异常
      */
     void registerClient(Class<? extends WSClientListener> targetClass) throws Exception;
+
+    /**
+     * 注册客户端点监听器
+     *
+     * @param clientConnectionManager 客户端连接管理器
+     */
+    void registerClient(WSClientConnectionManager clientConnectionManager);
 
     /**
      * 向容器注册并初始化服务端点

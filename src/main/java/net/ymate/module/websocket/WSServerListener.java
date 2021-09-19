@@ -1,5 +1,5 @@
 /*
- * Copyright 2007-2017 the original author or authors.
+ * Copyright 2007-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,28 +15,9 @@
  */
 package net.ymate.module.websocket;
 
-import javax.websocket.CloseReason;
-import javax.websocket.Endpoint;
-import javax.websocket.EndpointConfig;
-import javax.websocket.Session;
-
 /**
  * @author 刘镇 (suninformation@163.com) on 2017/7/13 下午1:20
- * @version 1.0
+ * @since 1.0
  */
-public abstract class WSServerListener extends Endpoint {
-
-    @Override
-    public void onOpen(Session session, EndpointConfig config) {
-    }
-
-    @Override
-    public void onClose(Session session, CloseReason closeReason) {
-        super.onClose(session, closeReason);
-    }
-
-    @Override
-    public void onError(Session session, Throwable thr) {
-        super.onError(session, thr);
-    }
+public abstract class WSServerListener extends AbstractWSListener {
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2007-2017 the original author or authors.
+ * Copyright 2007-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,10 +16,15 @@
 package net.ymate.module.websocket.support;
 
 import net.ymate.module.websocket.IWSHandshakeModifier;
+import net.ymate.module.websocket.IWebSocket;
+import net.ymate.module.websocket.WSServerListener;
 import org.apache.commons.lang.NullArgumentException;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
-import javax.websocket.*;
+import javax.websocket.Decoder;
+import javax.websocket.Encoder;
+import javax.websocket.Extension;
+import javax.websocket.HandshakeResponse;
 import javax.websocket.server.HandshakeRequest;
 import javax.websocket.server.ServerEndpointConfig;
 import java.util.ArrayList;
@@ -29,44 +34,46 @@ import java.util.Map;
 
 /**
  * @author 刘镇 (suninformation@163.com) on 2017/7/12 下午5:22
- * @version 1.0
+ * @since 1.0
  */
 public class WSServerEndpointConfigurator extends ServerEndpointConfig.Configurator implements ServerEndpointConfig {
 
+    private final IWebSocket owner;
+
     private final String path;
 
-    private final Endpoint endpoint;
+    private final Class<? extends WSServerListener> serverListener;
 
-    private List<Class<? extends Encoder>> encoders = new ArrayList<Class<? extends Encoder>>();
+    private List<Class<? extends Encoder>> encoders = new ArrayList<>();
 
-    private List<Class<? extends Decoder>> decoders = new ArrayList<Class<? extends Decoder>>();
+    private List<Class<? extends Decoder>> decoders = new ArrayList<>();
 
-    private List<String> subprotocols = new ArrayList<String>();
+    private List<String> subprotocols = new ArrayList<>();
 
-    private List<Extension> extensions = new ArrayList<Extension>();
+    private List<Extension> extensions = new ArrayList<>();
 
-    private final Map<String, Object> userProperties = new HashMap<String, Object>();
+    private final Map<String, Object> userProperties = new HashMap<>();
 
     private IWSHandshakeModifier handshakeModifier;
 
-    public WSServerEndpointConfigurator(String path, Endpoint endpoint) {
+    public WSServerEndpointConfigurator(IWebSocket owner, String path, Class<? extends WSServerListener> serverListener) {
+        if (owner == null) {
+            throw new NullArgumentException("owner");
+        }
         if (StringUtils.isBlank(path)) {
             throw new NullArgumentException("path");
         }
-        if (endpoint == null) {
-            throw new NullArgumentException("endpoint");
+        if (serverListener == null) {
+            throw new NullArgumentException("serverListener");
         }
+        this.owner = owner;
         this.path = path;
-        this.endpoint = endpoint;
+        this.serverListener = serverListener;
     }
 
     @Override
     public Class<?> getEndpointClass() {
-        return endpoint.getClass();
-    }
-
-    public Endpoint getEndpoint() {
-        return endpoint;
+        return serverListener;
     }
 
     @Override
@@ -134,9 +141,8 @@ public class WSServerEndpointConfigurator extends ServerEndpointConfig.Configura
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public final <T> T getEndpointInstance(Class<T> clazz) throws InstantiationException {
-        return (T) endpoint;
+        return (T) owner.getOwner().getBeanFactory().getBean(clazz);
     }
 
     @Override

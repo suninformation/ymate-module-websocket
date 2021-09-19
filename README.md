@@ -1,32 +1,39 @@
 ### YMP-WebSocket
 
-基于YMP框架实现对WebSocket技术的封装；
+基于YMP框架实现对WebSocket技术的封装。
 
 #### Maven包依赖
 
-    <dependency>
-        <groupId>net.ymate.module</groupId>
-        <artifactId>ymate-module-websocket</artifactId>
-        <version>1.0-SNAPSHOT</version>
-    </dependency>
+```xml
+<dependency>
+    <groupId>net.ymate.module</groupId>
+    <artifactId>ymate-module-websocket</artifactId>
+    <version>2.0.0</version>
+</dependency>
+```
 
 #### 模块配置参数说明
 
-    #-------------------------------------
-    # module.websocket 模块初始化参数
-    #-------------------------------------
-    
-    # 消息异步发送超时时间, 单位: 毫秒, 默认值: 0
-    ymp.configs.module.websocket.async_send_timeout=
-    
-    # 会话默认最大空闲超时时间, 单位: 毫秒, 默认值: 0
-    ymp.configs.module.websocket.default_max_session_idle_timeout=
-    
-    # 文本消息默认最大缓冲区大小, 默认值: 0
-    ymp.configs.module.websocket.default_max_text_message_buffer_size=
-    
-    # 二进制消息默认最大缓冲区大小, 默认值: 0
-    ymp.configs.module.websocket.default_max_binary_message_buffer_size=
+```properties
+#-------------------------------------
+# module.websocket 模块初始化参数
+#-------------------------------------
+
+# 模块是否已启用, 默认值: true
+ymp.configs.module.websocket.enabled=
+
+# 消息异步发送超时时间, 单位: 毫秒, 默认值: 0
+ymp.configs.module.websocket.async_send_timeout=
+
+# 会话默认最大空闲超时时间, 单位: 毫秒, 默认值: 0
+ymp.configs.module.websocket.max_session_idle_timeout=
+
+# 文本消息默认最大缓冲区大小, 默认值: 0
+ymp.configs.module.websocket.max_text_message_buffer_size=
+
+# 二进制消息默认最大缓冲区大小, 默认值: 0
+ymp.configs.module.websocket.max_binary_message_buffer_size=
+```
 
 #### One More Thing
 

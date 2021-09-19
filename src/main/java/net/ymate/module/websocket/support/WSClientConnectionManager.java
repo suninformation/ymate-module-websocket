@@ -1,5 +1,5 @@
 /*
- * Copyright 2007-2017 the original author or authors.
+ * Copyright 2007-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,9 @@
  */
 package net.ymate.module.websocket.support;
 
+import net.ymate.module.websocket.IWebSocket;
+import net.ymate.module.websocket.WSClientListener;
+import net.ymate.platform.commons.util.ThreadUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -23,39 +26,40 @@ import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 /**
  * @author 刘镇 (suninformation@163.com) on 2017/7/19 上午11:15
- * @version 1.0
+ * @since 1.0
  */
 public class WSClientConnectionManager {
 
-    private static final Log _LOG = LogFactory.getLog(WSClientConnectionManager.class);
+    private static final Log LOG = LogFactory.getLog(WSClientConnectionManager.class);
 
-    private final URI __uri;
+    private final URI uri;
 
-    private final Endpoint __endpoint;
+    private final Endpoint endpoint;
+
+    private boolean autoStartup;
 
     private boolean running = false;
 
-    private final Object __locker = new Object();
+    private final Object locker = new Object();
 
-    private WebSocketContainer __webSocketContainer = ContainerProvider.getWebSocketContainer();
+    private WebSocketContainer socketContainer = ContainerProvider.getWebSocketContainer();
 
-    private final ClientEndpointConfig.Builder __configBuilder = ClientEndpointConfig.Builder.create();
+    private final ClientEndpointConfig.Builder configBuilder = ClientEndpointConfig.Builder.create();
 
-    private ExecutorService __executor;
+    private ExecutorService executorService;
 
-    private volatile Session __session;
+    private volatile Session session;
 
-    public WSClientConnectionManager(URI uri, Endpoint endpoint) {
-        __uri = uri;
-        __endpoint = endpoint;
+    public WSClientConnectionManager(IWebSocket owner, URI uri, Class<? extends WSClientListener> endpointClass) {
+        this.uri = uri;
+        this.endpoint = owner.getOwner().getBeanFactory().getBean(endpointClass);
     }
 
     public URI getUri() {
-        return __uri;
+        return uri;
     }
 
     public void setRunning(boolean running) {
@@ -63,113 +67,120 @@ public class WSClientConnectionManager {
     }
 
     public void setPreferredSubprotocols(String... protocols) {
-        __configBuilder.preferredSubprotocols(Arrays.asList(protocols));
+        configBuilder.preferredSubprotocols(Arrays.asList(protocols));
     }
 
     public void setExtensions(List<Extension> extensions) {
-        __configBuilder.extensions(extensions);
+        configBuilder.extensions(extensions);
     }
 
     public void setEncoders(List<Class<? extends Encoder>> encoders) {
-        __configBuilder.encoders(encoders);
+        configBuilder.encoders(encoders);
     }
 
     public void setDecoders(List<Class<? extends Decoder>> decoders) {
-        __configBuilder.decoders(decoders);
+        configBuilder.decoders(decoders);
     }
 
     public void setConfigurator(ClientEndpointConfig.Configurator configurator) {
-        __configBuilder.configurator(configurator);
+        configBuilder.configurator(configurator);
     }
 
     public void setWebSocketContainer(WebSocketContainer webSocketContainer) {
-        __webSocketContainer = webSocketContainer;
+        socketContainer = webSocketContainer;
     }
 
     public WebSocketContainer getWebSocketContainer() {
-        return __webSocketContainer;
+        return socketContainer;
     }
 
     public final void start() {
-        synchronized (__locker) {
+        synchronized (locker) {
             if (!isRunning()) {
-                __doStart();
+                doStart();
             }
         }
     }
 
-    protected void __doStart() {
-        synchronized (__locker) {
-            if (_LOG.isInfoEnabled()) {
-                _LOG.info("Starting " + getClass().getSimpleName());
-            }
+    protected void doStart() {
+        synchronized (locker) {
             this.running = true;
             openConnection();
         }
     }
 
     public final void stop() {
-        synchronized (__locker) {
+        synchronized (locker) {
             if (isRunning()) {
-                if (_LOG.isInfoEnabled()) {
-                    _LOG.info("Stopping " + getClass().getSimpleName());
+                if (LOG.isInfoEnabled()) {
+                    LOG.info(String.format("Stopping WebSocket connection for %s", uri));
                 }
                 try {
-                    __doStop();
+                    doStop();
                 } catch (Throwable ex) {
-                    _LOG.error("Failed to stop WebSocket connection", ex);
+                    if (LOG.isErrorEnabled()) {
+                        LOG.error(String.format("Failed to stop WebSocket connection for %s", uri), ex);
+                    }
                 } finally {
                     this.running = false;
                 }
             }
             try {
-                if (__executor != null) {
-                    __executor.shutdown();
+                if (executorService != null) {
+                    executorService.shutdown();
                 }
             } catch (Throwable ex) {
-                _LOG.error("Failed to shutdown WebSocket connection manager", ex);
+                if (LOG.isErrorEnabled()) {
+                    LOG.error(String.format("Failed to shutdown WebSocket connection for %s", uri), ex);
+                }
             } finally {
-                __executor = null;
+                executorService = null;
             }
         }
     }
 
     public final void stop(Runnable callback) {
-        synchronized (__locker) {
+        synchronized (locker) {
             stop();
             callback.run();
         }
     }
 
-    protected void __doStop() throws Exception {
+    protected void doStop() throws Exception {
         if (isConnected()) {
             closeConnection();
         }
     }
 
+    public boolean isAutoStartup() {
+        return autoStartup;
+    }
+
+    public void setAutoStartup(boolean autoStartup) {
+        this.autoStartup = autoStartup;
+    }
+
     public boolean isRunning() {
-        synchronized (__locker) {
+        synchronized (locker) {
             return this.running;
         }
     }
 
     protected void openConnection() {
-        if (__executor == null) {
-            __executor = Executors.newSingleThreadExecutor();
+        if (executorService == null) {
+            executorService = ThreadUtils.newSingleThreadExecutor();
         }
-        __executor.execute(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    if (_LOG.isInfoEnabled()) {
-                        _LOG.info("Connecting to WebSocket at " + __uri);
-                    }
-                    __session = __webSocketContainer.connectToServer(__endpoint, __configBuilder.build(), __uri);
-                    _LOG.info("Successfully connected to WebSocket");
-                } catch (Throwable ex) {
-                    _LOG.error("Failed to connect to WebSocket", ex);
-                    stop();
+        executorService.execute(() -> {
+            try {
+                if (LOG.isInfoEnabled()) {
+                    LOG.info(String.format("Connecting to WebSocket at %s", uri));
                 }
+                session = socketContainer.connectToServer(endpoint, configBuilder.build(), uri);
+            } catch (Throwable ex) {
+                if (LOG.isErrorEnabled()) {
+                    LOG.error(String.format("Failed to connect to WebSocket at %s", uri), ex);
+                }
+                stop();
             }
         });
     }
@@ -177,14 +188,14 @@ public class WSClientConnectionManager {
     protected void closeConnection() throws Exception {
         try {
             if (isConnected()) {
-                __session.close();
+                session.close();
             }
         } finally {
-            __session = null;
+            session = null;
         }
     }
 
     protected boolean isConnected() {
-        return (__session != null && __session.isOpen());
+        return (session != null && session.isOpen());
     }
 }

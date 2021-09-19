@@ -15,33 +15,39 @@
  */
 package net.ymate.module.websocket.annotation;
 
-import net.ymate.module.websocket.IWSExtensible;
-
-import javax.websocket.ClientEndpointConfig;
-import javax.websocket.Decoder;
-import javax.websocket.Encoder;
 import java.lang.annotation.*;
 
 /**
- * @author 刘镇 (suninformation@163.com) on 2017/7/12 下午2:33
- * @since 1.0
+ * @author 刘镇 (suninformation@163.com) on  2021/09/17 00:43
+ * @since 2.0.0
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-public @interface WSClient {
+public @interface WebSocketConf {
 
-    String value();
+    /**
+     * @return 模块是否已启用, 默认值: true
+     */
+    boolean enabled() default true;
 
-    boolean autoStartup() default false;
+    /**
+     * @return 消息异步发送超时时间, 单位: 毫秒, 默认值: 0
+     */
+    long asyncSendTimeout() default 0;
 
-    String[] subprotocols() default {};
+    /**
+     * @return 会话默认最大空闲超时时间, 单位: 毫秒, 默认值: 0
+     */
+    long maxSessionIdleTimeout() default 0;
 
-    Class<? extends Decoder>[] decoders() default {};
+    /**
+     * @return 文本消息默认最大缓冲区大小, 默认值: 0
+     */
+    int maxTextMessageBufferSize() default 0;
 
-    Class<? extends Encoder>[] encoders() default {};
-
-    Class<? extends ClientEndpointConfig.Configurator> configurator() default ClientEndpointConfig.Configurator.class;
-
-    Class<? extends IWSExtensible> extensible() default IWSExtensible.class;
+    /**
+     * @return 二进制消息默认最大缓冲区大小, 默认值: 0
+     */
+    int maxBinaryMessageBufferSize() default 0;
 }

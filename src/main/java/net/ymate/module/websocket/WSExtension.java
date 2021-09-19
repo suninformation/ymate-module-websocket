@@ -1,5 +1,5 @@
 /*
- * Copyright 2007-2017 the original author or authors.
+ * Copyright 2007-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,14 +16,14 @@
 package net.ymate.module.websocket;
 
 import org.apache.commons.lang.NullArgumentException;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.websocket.Extension;
 import java.util.*;
 
 /**
  * @author 刘镇 (suninformation@163.com) on 2017/7/16 下午7:33
- * @version 1.0
+ * @since 1.0
  */
 public class WSExtension {
 
@@ -41,9 +41,7 @@ public class WSExtension {
         }
         this.name = name;
         if (parameters != null && !parameters.isEmpty()) {
-            Map<String, String> _params = new LinkedHashMap<String, String>(parameters.size());
-            _params.putAll(parameters);
-            this.parameters = Collections.unmodifiableMap(_params);
+            this.parameters = Collections.unmodifiableMap(new LinkedHashMap<>(parameters));
         } else {
             this.parameters = Collections.emptyMap();
         }
@@ -65,8 +63,8 @@ public class WSExtension {
         if (obj == null || getClass() != obj.getClass()) {
             return false;
         }
-        WSExtension _target = (WSExtension) obj;
-        return (this.name.equals(_target.name) && this.parameters.equals(_target.parameters));
+        WSExtension extension = (WSExtension) obj;
+        return (this.name.equals(extension.name) && this.parameters.equals(extension.parameters));
     }
 
     @Override
@@ -78,12 +76,12 @@ public class WSExtension {
     public String toString() {
         StringBuilder str = new StringBuilder();
         str.append(this.name);
-        for (Map.Entry<String, String> entry : this.parameters.entrySet()) {
+        parameters.forEach((key, value) -> {
             str.append(';');
-            str.append(entry.getKey());
+            str.append(key);
             str.append('=');
-            str.append(entry.getValue());
-        }
+            str.append(value);
+        });
         return str.toString();
     }
 
@@ -96,21 +94,19 @@ public class WSExtension {
 
             @Override
             public List<Parameter> getParameters() {
-                List<Parameter> _params = new ArrayList<Parameter>();
-                for (final Map.Entry<String, String> entry : parameters.entrySet()) {
-                    _params.add(new Parameter() {
-                        @Override
-                        public String getName() {
-                            return entry.getKey();
-                        }
+                List<Parameter> params = new ArrayList<>();
+                parameters.forEach((key, value) -> params.add(new Parameter() {
+                    @Override
+                    public String getName() {
+                        return key;
+                    }
 
-                        @Override
-                        public String getValue() {
-                            return entry.getValue();
-                        }
-                    });
-                }
-                return _params;
+                    @Override
+                    public String getValue() {
+                        return value;
+                    }
+                }));
+                return params;
             }
         };
     }
