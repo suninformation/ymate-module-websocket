@@ -39,15 +39,15 @@ public @interface WebSocketConf {
     /**
      * @return 会话默认最大空闲超时时间, 单位: 毫秒, 默认值: 0
      */
-    long maxSessionIdleTimeout() default 0;
+    long defaultMaxSessionIdleTimeout() default 0;
 
     /**
      * @return 文本消息默认最大缓冲区大小, 默认值: 0
      */
-    int maxTextMessageBufferSize() default 0;
+    int defaultMaxTextMessageBufferSize() default 0;
 
     /**
      * @return 二进制消息默认最大缓冲区大小, 默认值: 0
      */
-    int maxBinaryMessageBufferSize() default 0;
+    int defaultMaxBinaryMessageBufferSize() default 0;
 }

@@ -51,18 +51,18 @@ public final class DefaultWebSocketConfigurable extends DefaultModuleConfigurabl
             return this;
         }
 
-        public Builder maxSessionIdleTimeout(long maxSessionIdleTimeout) {
-            configurable.addConfig(IWebSocketConfig.MAX_SESSION_IDLE_TIMEOUT, String.valueOf(maxSessionIdleTimeout));
+        public Builder defaultMaxSessionIdleTimeout(long defaultMaxSessionIdleTimeout) {
+            configurable.addConfig(IWebSocketConfig.DEFAULT_MAX_SESSION_IDLE_TIMEOUT, String.valueOf(defaultMaxSessionIdleTimeout));
             return this;
         }
 
-        public Builder maxTextMessageBufferSize(int maxTextMessageBufferSize) {
-            configurable.addConfig(IWebSocketConfig.MAX_TEXT_MESSAGE_BUFFER_SIZE, String.valueOf(maxTextMessageBufferSize));
+        public Builder defaultMaxTextMessageBufferSize(int defaultMaxTextMessageBufferSize) {
+            configurable.addConfig(IWebSocketConfig.DEFAULT_MAX_TEXT_MESSAGE_BUFFER_SIZE, String.valueOf(defaultMaxTextMessageBufferSize));
             return this;
         }
 
-        public Builder maxBinaryMessageBufferSize(int maxBinaryMessageBufferSize) {
-            configurable.addConfig(IWebSocketConfig.MAX_BINARY_MESSAGE_BUFFER_SIZE, String.valueOf(maxBinaryMessageBufferSize));
+        public Builder defaultMaxBinaryMessageBufferSize(int defaultMaxBinaryMessageBufferSize) {
+            configurable.addConfig(IWebSocketConfig.DEFAULT_MAX_BINARY_MESSAGE_BUFFER_SIZE, String.valueOf(defaultMaxBinaryMessageBufferSize));
             return this;
         }
 

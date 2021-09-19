@@ -31,11 +31,11 @@ public final class DefaultWebSocketConfig implements IWebSocketConfig {
 
     private long asyncSendTimeout;
 
-    private long maxSessionIdleTimeout;
+    private long defaultMaxSessionIdleTimeout;
 
-    private int maxTextMessageBufferSize;
+    private int defaultMaxTextMessageBufferSize;
 
-    private int maxBinaryMessageBufferSize;
+    private int defaultMaxBinaryMessageBufferSize;
 
     private boolean initialized;
 
@@ -65,16 +65,16 @@ public final class DefaultWebSocketConfig implements IWebSocketConfig {
         //
         enabled = configReader.getBoolean(ENABLED, confAnn == null || confAnn.enabled());
         asyncSendTimeout = configReader.getLong(ASYNC_SEND_TIMEOUT, confAnn != null ? confAnn.asyncSendTimeout() : 0);
-        maxSessionIdleTimeout = configReader.getLong(MAX_SESSION_IDLE_TIMEOUT, confAnn != null ? confAnn.maxSessionIdleTimeout() : 0);
-        maxTextMessageBufferSize = configReader.getInt(MAX_TEXT_MESSAGE_BUFFER_SIZE, confAnn != null ? confAnn.maxTextMessageBufferSize() : 0);
-        maxBinaryMessageBufferSize = configReader.getInt(MAX_BINARY_MESSAGE_BUFFER_SIZE, confAnn != null ? confAnn.maxBinaryMessageBufferSize() : 0);
+        defaultMaxSessionIdleTimeout = configReader.getLong(DEFAULT_MAX_SESSION_IDLE_TIMEOUT, confAnn != null ? confAnn.defaultMaxSessionIdleTimeout() : 0);
+        defaultMaxTextMessageBufferSize = configReader.getInt(DEFAULT_MAX_TEXT_MESSAGE_BUFFER_SIZE, confAnn != null ? confAnn.defaultMaxTextMessageBufferSize() : 0);
+        defaultMaxBinaryMessageBufferSize = configReader.getInt(DEFAULT_MAX_BINARY_MESSAGE_BUFFER_SIZE, confAnn != null ? confAnn.defaultMaxBinaryMessageBufferSize() : 0);
     }
 
     @Override
     public void initialize(IWebSocket owner) throws Exception {
         if (!initialized) {
             if (enabled) {
-                // TODO What to do?
+                // Do Nothing
             }
             initialized = true;
         }
@@ -108,35 +108,35 @@ public final class DefaultWebSocketConfig implements IWebSocketConfig {
     }
 
     @Override
-    public long getMaxSessionIdleTimeout() {
-        return maxSessionIdleTimeout;
+    public long getDefaultMaxSessionIdleTimeout() {
+        return defaultMaxSessionIdleTimeout;
     }
 
-    public void setMaxSessionIdleTimeout(long maxSessionIdleTimeout) {
+    public void setDefaultMaxSessionIdleTimeout(long defaultMaxSessionIdleTimeout) {
         if (!initialized) {
-            this.maxSessionIdleTimeout = maxSessionIdleTimeout;
+            this.defaultMaxSessionIdleTimeout = defaultMaxSessionIdleTimeout;
         }
     }
 
     @Override
-    public int getMaxTextMessageBufferSize() {
-        return maxTextMessageBufferSize;
+    public int getDefaultMaxTextMessageBufferSize() {
+        return defaultMaxTextMessageBufferSize;
     }
 
-    public void setMaxTextMessageBufferSize(int maxTextMessageBufferSize) {
+    public void setDefaultMaxTextMessageBufferSize(int defaultMaxTextMessageBufferSize) {
         if (!initialized) {
-            this.maxTextMessageBufferSize = maxTextMessageBufferSize;
+            this.defaultMaxTextMessageBufferSize = defaultMaxTextMessageBufferSize;
         }
     }
 
     @Override
-    public int getMaxBinaryMessageBufferSize() {
-        return maxBinaryMessageBufferSize;
+    public int getDefaultMaxBinaryMessageBufferSize() {
+        return defaultMaxBinaryMessageBufferSize;
     }
 
-    public void setMaxBinaryMessageBufferSize(int maxBinaryMessageBufferSize) {
+    public void setDefaultMaxBinaryMessageBufferSize(int defaultMaxBinaryMessageBufferSize) {
         if (!initialized) {
-            this.maxBinaryMessageBufferSize = maxBinaryMessageBufferSize;
+            this.defaultMaxBinaryMessageBufferSize = defaultMaxBinaryMessageBufferSize;
         }
     }
 
@@ -157,18 +157,18 @@ public final class DefaultWebSocketConfig implements IWebSocketConfig {
             return this;
         }
 
-        public Builder maxSessionIdleTimeout(long maxSessionIdleTimeout) {
-            config.setMaxSessionIdleTimeout(maxSessionIdleTimeout);
+        public Builder defaultMaxSessionIdleTimeout(long defaultMaxSessionIdleTimeout) {
+            config.setDefaultMaxSessionIdleTimeout(defaultMaxSessionIdleTimeout);
             return this;
         }
 
-        public Builder maxTextMessageBufferSize(int maxTextMessageBufferSize) {
-            config.setMaxTextMessageBufferSize(maxTextMessageBufferSize);
+        public Builder defaultMaxTextMessageBufferSize(int defaultMaxTextMessageBufferSize) {
+            config.setDefaultMaxTextMessageBufferSize(defaultMaxTextMessageBufferSize);
             return this;
         }
 
-        public Builder maxBinaryMessageBufferSize(int maxBinaryMessageBufferSize) {
-            config.setMaxBinaryMessageBufferSize(maxBinaryMessageBufferSize);
+        public Builder defaultMaxBinaryMessageBufferSize(int defaultMaxBinaryMessageBufferSize) {
+            config.setDefaultMaxBinaryMessageBufferSize(defaultMaxBinaryMessageBufferSize);
             return this;
         }
 

@@ -29,11 +29,11 @@ public interface IWebSocketConfig extends IInitialization<IWebSocket> {
 
     String ASYNC_SEND_TIMEOUT = "async_send_timeout";
 
-    String MAX_SESSION_IDLE_TIMEOUT = "max_session_idle_timeout";
+    String DEFAULT_MAX_SESSION_IDLE_TIMEOUT = "default_max_session_idle_timeout";
 
-    String MAX_TEXT_MESSAGE_BUFFER_SIZE = "max_text_message_buffer_size";
+    String DEFAULT_MAX_TEXT_MESSAGE_BUFFER_SIZE = "default_max_text_message_buffer_size";
 
-    String MAX_BINARY_MESSAGE_BUFFER_SIZE = "max_binary_message_buffer_size";
+    String DEFAULT_MAX_BINARY_MESSAGE_BUFFER_SIZE = "default_max_binary_message_buffer_size";
 
     /**
      * 模块是否已启用, 默认值: true
@@ -54,19 +54,19 @@ public interface IWebSocketConfig extends IInitialization<IWebSocket> {
      *
      * @return 返回会话默认最大空闲超时时间毫秒值
      */
-    long getMaxSessionIdleTimeout();
+    long getDefaultMaxSessionIdleTimeout();
 
     /**
      * 文本消息默认最大缓冲区大小, 默认值: 0
      *
      * @return 返回文本消息默认最大缓冲区大小
      */
-    int getMaxTextMessageBufferSize();
+    int getDefaultMaxTextMessageBufferSize();
 
     /**
      * 二进制消息默认最大缓冲区大小, 默认值: 0
      *
      * @return 返回二进制消息默认最大缓冲区大小
      */
-    int getMaxBinaryMessageBufferSize();
+    int getDefaultMaxBinaryMessageBufferSize();
 }

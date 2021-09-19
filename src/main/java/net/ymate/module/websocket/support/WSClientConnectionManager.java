@@ -17,6 +17,7 @@ package net.ymate.module.websocket.support;
 
 import net.ymate.module.websocket.IWebSocket;
 import net.ymate.module.websocket.WSClientListener;
+import net.ymate.platform.commons.util.RuntimeUtils;
 import net.ymate.platform.commons.util.ThreadUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -35,9 +36,11 @@ public class WSClientConnectionManager {
 
     private static final Log LOG = LogFactory.getLog(WSClientConnectionManager.class);
 
+    private final IWebSocket owner;
+
     private final URI uri;
 
-    private final Endpoint endpoint;
+    private final Class<? extends WSClientListener> endpointClass;
 
     private boolean autoStartup;
 
@@ -45,7 +48,7 @@ public class WSClientConnectionManager {
 
     private final Object locker = new Object();
 
-    private WebSocketContainer socketContainer = ContainerProvider.getWebSocketContainer();
+    private WebSocketContainer socketContainer;
 
     private final ClientEndpointConfig.Builder configBuilder = ClientEndpointConfig.Builder.create();
 
@@ -54,8 +57,9 @@ public class WSClientConnectionManager {
     private volatile Session session;
 
     public WSClientConnectionManager(IWebSocket owner, URI uri, Class<? extends WSClientListener> endpointClass) {
+        this.owner = owner;
         this.uri = uri;
-        this.endpoint = owner.getOwner().getBeanFactory().getBean(endpointClass);
+        this.endpointClass = endpointClass;
     }
 
     public URI getUri() {
@@ -94,6 +98,10 @@ public class WSClientConnectionManager {
         return socketContainer;
     }
 
+    public Class<? extends WSClientListener> getEndpointClass() {
+        return endpointClass;
+    }
+
     public final void start() {
         synchronized (locker) {
             if (!isRunning()) {
@@ -113,13 +121,13 @@ public class WSClientConnectionManager {
         synchronized (locker) {
             if (isRunning()) {
                 if (LOG.isInfoEnabled()) {
-                    LOG.info(String.format("Stopping WebSocket connection for %s", uri));
+                    LOG.info(String.format("Stopping WSClient connection for %s", uri));
                 }
                 try {
                     doStop();
                 } catch (Throwable ex) {
                     if (LOG.isErrorEnabled()) {
-                        LOG.error(String.format("Failed to stop WebSocket connection for %s", uri), ex);
+                        LOG.error(String.format("Failed to stop WSClient connection for %s", uri), RuntimeUtils.unwrapThrow(ex));
                     }
                 } finally {
                     this.running = false;
@@ -131,7 +139,7 @@ public class WSClientConnectionManager {
                 }
             } catch (Throwable ex) {
                 if (LOG.isErrorEnabled()) {
-                    LOG.error(String.format("Failed to shutdown WebSocket connection for %s", uri), ex);
+                    LOG.error(String.format("Failed to shutdown WSClient connection for %s", uri), RuntimeUtils.unwrapThrow(ex));
                 }
             } finally {
                 executorService = null;
@@ -173,12 +181,15 @@ public class WSClientConnectionManager {
         executorService.execute(() -> {
             try {
                 if (LOG.isInfoEnabled()) {
-                    LOG.info(String.format("Connecting to WebSocket at %s", uri));
+                    LOG.info(String.format("Connecting to WSClient at %s", uri));
                 }
-                session = socketContainer.connectToServer(endpoint, configBuilder.build(), uri);
+                if (socketContainer == null) {
+                    socketContainer = ContainerProvider.getWebSocketContainer();
+                }
+                session = socketContainer.connectToServer(owner.getOwner().getBeanFactory().getBean(endpointClass), configBuilder.build(), uri);
             } catch (Throwable ex) {
                 if (LOG.isErrorEnabled()) {
-                    LOG.error(String.format("Failed to connect to WebSocket at %s", uri), ex);
+                    LOG.error(String.format("Failed to connect to WSClient at %s", uri), RuntimeUtils.unwrapThrow(ex));
                 }
                 stop();
             }

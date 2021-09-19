@@ -207,6 +207,9 @@ public final class WebSocket implements IModule, IWebSocket {
             beanMeta.setInterfaceIgnored(true);
             owner.getBeanFactory().registerBean(beanMeta);
             //
+            if (owner.isDevEnv() && LOG.isDebugEnabled()) {
+                LOG.debug(String.format("--> [WSServer]: %s : %s", serverEndpointConfigurator.getPath(), serverEndpointConfigurator.getEndpointClass().getName()));
+            }
             serverEndpointConfigurators.add(serverEndpointConfigurator);
         }
     }
@@ -218,40 +221,34 @@ public final class WebSocket implements IModule, IWebSocket {
             throw new IllegalArgumentException("No WSClient annotation present on class");
         }
         owner.getBeanFactory().registerBean(BeanMeta.create(targetClass, true));
-        URI uri = null;
-        try {
-            uri = new URI(clientAnn.value());
-        } catch (Exception e) {
-            if (LOG.isErrorEnabled()) {
-                LOG.error(StringUtils.EMPTY, RuntimeUtils.unwrapThrow(e));
+        URI uri = new URI(clientAnn.value());
+        WSClientConnectionManager clientConnectionManager = new WSClientConnectionManager(this, uri, targetClass);
+        clientConnectionManager.setEncoders(Arrays.asList(clientAnn.encoders()));
+        clientConnectionManager.setDecoders(Arrays.asList(clientAnn.decoders()));
+        clientConnectionManager.setPreferredSubprotocols(clientAnn.subprotocols());
+        if (!clientAnn.configurator().equals(ClientEndpointConfig.Configurator.class)) {
+            ClientEndpointConfig.Configurator configurator = ClassUtils.impl(clientAnn.configurator(), ClientEndpointConfig.Configurator.class);
+            if (configurator != null) {
+                clientConnectionManager.setConfigurator(configurator);
             }
         }
-        if (uri != null) {
-            WSClientConnectionManager clientConnectionManager = new WSClientConnectionManager(this, uri, targetClass);
-            clientConnectionManager.setEncoders(Arrays.asList(clientAnn.encoders()));
-            clientConnectionManager.setDecoders(Arrays.asList(clientAnn.decoders()));
-            clientConnectionManager.setPreferredSubprotocols(clientAnn.subprotocols());
-            if (!clientAnn.configurator().equals(ClientEndpointConfig.Configurator.class)) {
-                ClientEndpointConfig.Configurator configurator = ClassUtils.impl(clientAnn.configurator(), ClientEndpointConfig.Configurator.class);
-                if (configurator != null) {
-                    clientConnectionManager.setConfigurator(configurator);
-                }
+        if (!clientAnn.extensible().equals(IWSExtensible.class)) {
+            IWSExtensible extensible = ClassUtils.impl(clientAnn.extensible(), IWSExtensible.class);
+            if (extensible != null) {
+                clientConnectionManager.setExtensions(extensible.getExtensions());
             }
-            if (!clientAnn.extensible().equals(IWSExtensible.class)) {
-                IWSExtensible extensible = ClassUtils.impl(clientAnn.extensible(), IWSExtensible.class);
-                if (extensible != null) {
-                    clientConnectionManager.setExtensions(extensible.getExtensions());
-                }
-            }
-            clientConnectionManager.setAutoStartup(clientAnn.autoStartup());
-            //
-            clientConnectionManagers.add(clientConnectionManager);
         }
+        clientConnectionManager.setAutoStartup(clientAnn.autoStartup());
+        //
+        registerClient(clientConnectionManager);
     }
 
     @Override
     public void registerClient(WSClientConnectionManager clientConnectionManager) {
         if (clientConnectionManager != null) {
+            if (owner.isDevEnv() && LOG.isDebugEnabled()) {
+                LOG.debug(String.format("--> [WSClient]: %s : %s", clientConnectionManager.getUri(), clientConnectionManager.getEndpointClass().getName()));
+            }
             clientConnectionManagers.add(clientConnectionManager);
         }
     }
@@ -264,14 +261,14 @@ public final class WebSocket implements IModule, IWebSocket {
                     if (config.getAsyncSendTimeout() > 0) {
                         serverContainer.setAsyncSendTimeout(config.getAsyncSendTimeout());
                     }
-                    if (config.getMaxSessionIdleTimeout() > 0) {
-                        serverContainer.setDefaultMaxSessionIdleTimeout(config.getMaxSessionIdleTimeout());
+                    if (config.getDefaultMaxSessionIdleTimeout() > 0) {
+                        serverContainer.setDefaultMaxSessionIdleTimeout(config.getDefaultMaxSessionIdleTimeout());
                     }
-                    if (config.getMaxTextMessageBufferSize() > 0) {
-                        serverContainer.setDefaultMaxTextMessageBufferSize(config.getMaxTextMessageBufferSize());
+                    if (config.getDefaultMaxTextMessageBufferSize() > 0) {
+                        serverContainer.setDefaultMaxTextMessageBufferSize(config.getDefaultMaxTextMessageBufferSize());
                     }
-                    if (config.getMaxBinaryMessageBufferSize() > 0) {
-                        serverContainer.setDefaultMaxBinaryMessageBufferSize(config.getMaxBinaryMessageBufferSize());
+                    if (config.getDefaultMaxBinaryMessageBufferSize() > 0) {
+                        serverContainer.setDefaultMaxBinaryMessageBufferSize(config.getDefaultMaxBinaryMessageBufferSize());
                     }
                 } else if (LOG.isWarnEnabled()) {
                     LOG.warn("Attribute 'javax.websocket.server.ServerContainer' not found in ServletContext.");

@@ -42,7 +42,7 @@ public class WSServerEndpointConfigurator extends ServerEndpointConfig.Configura
 
     private final String path;
 
-    private final Class<? extends WSServerListener> serverListener;
+    private final Class<? extends WSServerListener> endpointClass;
 
     private List<Class<? extends Encoder>> encoders = new ArrayList<>();
 
@@ -56,24 +56,24 @@ public class WSServerEndpointConfigurator extends ServerEndpointConfig.Configura
 
     private IWSHandshakeModifier handshakeModifier;
 
-    public WSServerEndpointConfigurator(IWebSocket owner, String path, Class<? extends WSServerListener> serverListener) {
+    public WSServerEndpointConfigurator(IWebSocket owner, String path, Class<? extends WSServerListener> endpointClass) {
         if (owner == null) {
             throw new NullArgumentException("owner");
         }
         if (StringUtils.isBlank(path)) {
             throw new NullArgumentException("path");
         }
-        if (serverListener == null) {
-            throw new NullArgumentException("serverListener");
+        if (endpointClass == null) {
+            throw new NullArgumentException("endpointClass");
         }
         this.owner = owner;
         this.path = path;
-        this.serverListener = serverListener;
+        this.endpointClass = endpointClass;
     }
 
     @Override
     public Class<?> getEndpointClass() {
-        return serverListener;
+        return endpointClass;
     }
 
     @Override

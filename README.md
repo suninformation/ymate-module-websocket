@@ -26,13 +26,13 @@ ymp.configs.module.websocket.enabled=
 ymp.configs.module.websocket.async_send_timeout=
 
 # 会话默认最大空闲超时时间, 单位: 毫秒, 默认值: 0
-ymp.configs.module.websocket.max_session_idle_timeout=
+ymp.configs.module.websocket.default_max_session_idle_timeout=
 
 # 文本消息默认最大缓冲区大小, 默认值: 0
-ymp.configs.module.websocket.max_text_message_buffer_size=
+ymp.configs.module.websocket.default_max_text_message_buffer_size=
 
 # 二进制消息默认最大缓冲区大小, 默认值: 0
-ymp.configs.module.websocket.max_binary_message_buffer_size=
+ymp.configs.module.websocket.default_max_binary_message_buffer_size=
 ```
 
 #### One More Thing
