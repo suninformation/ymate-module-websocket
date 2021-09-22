@@ -98,7 +98,7 @@ public final class WebSocket implements IModule, IWebSocket {
     public void initialize(IApplication owner) throws Exception {
         if (!initialized) {
             //
-            YMP.showVersion("Initializing ymate-module-websocket-websocket-${version}", new Version(2, 0, 0, WebSocket.class, Version.VersionType.Release));
+            YMP.showVersion("Initializing ymate-module-websocket-${version}", new Version(2, 0, 0, WebSocket.class, Version.VersionType.Release));
             //
             this.owner = owner;
             //
