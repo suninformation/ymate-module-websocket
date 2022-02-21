@@ -1,6 +1,9 @@
-### YMP-WebSocket
+# YMATE-MODULE-WEBSOCKET
 
-基于YMP框架实现对WebSocket技术的封装。
+[![Maven Central status](https://img.shields.io/maven-central/v/net.ymate.module/ymate-module-websocket.svg)](https://search.maven.org/artifact/net.ymate.module/ymate-module-websocket)
+[![LICENSE](https://img.shields.io/github/license/suninformation/ymate-module-websocket.svg)](https://gitee.com/suninformation/ymate-module-websocket/blob/master/LICENSE)
+
+为 YMP 框架提供对 WebSocket 技术的集成与模块封装。
 
 #### Maven包依赖
 
@@ -35,10 +38,14 @@ ymp.configs.module.websocket.default_max_text_message_buffer_size=
 ymp.configs.module.websocket.default_max_binary_message_buffer_size=
 ```
 
-#### One More Thing
+## One More Thing
 
-YMP不仅提供便捷的Web及其它Java项目的快速开发体验，也将不断提供更多丰富的项目实践经验。
+YMP 不仅提供便捷的 Web 及其它 Java 项目的快速开发体验，也将不断提供更多丰富的项目实践经验。
 
-感兴趣的小伙伴儿们可以加入 官方QQ群480374360，一起交流学习，帮助YMP成长！
+感兴趣的小伙伴儿们可以加入官方 QQ 群：[480374360](https://qm.qq.com/cgi-bin/qm/qr?k=3KSXbRoridGeFxTVA8HZzyhwU_btZQJ2)，一起交流学习，帮助 YMP 成长！
 
-了解更多有关YMP框架的内容，请访问官网：http://www.ymate.net/
+如果喜欢 YMP，希望得到你的支持和鼓励！
+
+![Donation Code](https://ymate.net/img/donation_code.png)
+
+了解更多有关 YMP 框架的内容，请访问官网：[https://ymate.net](https://ymate.net)

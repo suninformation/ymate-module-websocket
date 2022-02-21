@@ -24,5 +24,10 @@ import java.util.List;
  */
 public interface IWSExtensible {
 
+    /**
+     * 获取扩展参数映射
+     *
+     * @return 返回扩展参数映射集合
+     */
     List<Extension> getExtensions();
 }
